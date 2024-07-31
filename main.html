@@ -20,9 +20,10 @@
       <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
 
       <label for="pitch">Pitch:</label>
-
-      <input name="pitch" type="range" min="0" max="2" step="0.1">
+      <input name="pitch" type="range" min="0" max="2" value="1" step="0.1">
+      
       <textarea name="text">Hello! I love JavaScript 👍</textarea>
+      
       <button id="stop">Stop!</button>
       <button id="speak">Speak</button>
 
@@ -36,7 +37,53 @@
   const speakButton = document.querySelector('#speak');
   const stopButton = document.querySelector('#stop');
 
-  //Your code goes here
+  // Populate the list of voices
+  function populateVoices() {
+    voices = speechSynthesis.getVoices();
+    voicesDropdown.innerHTML = voices
+      .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
+      .join('');
+  }
+
+  // Set the voice for the speech synthesis
+  function setVoice() {
+    msg.voice = voices.find(voice => voice.name === this.value);
+    toggle();
+  }
+
+  // Set the options for rate, pitch, and text
+  function setOption() {
+    msg[this.name] = this.value;
+    toggle();
+  }
+
+  // Start speaking the text
+  function speak() {
+    msg.text = document.querySelector('[name="text"]').value;
+    speechSynthesis.speak(msg);
+  }
+
+  // Stop speaking
+  function stop() {
+    speechSynthesis.cancel();
+  }
+
+  // Toggle the speak button
+  function toggle(startOver = true) {
+    speechSynthesis.cancel();
+    if (startOver) {
+      speechSynthesis.speak(msg);
+    }
+  }
+
+  speechSynthesis.addEventListener('voiceschanged', populateVoices);
+  voicesDropdown.addEventListener('change', setVoice);
+  options.forEach(option => option.addEventListener('change', setOption));
+  speakButton.addEventListener('click', speak);
+  stopButton.addEventListener('click', stop);
+
+  // Initial population of voices
+  populateVoices();
 </script>
 
 </body>
